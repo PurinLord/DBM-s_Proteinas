@@ -1,4 +1,5 @@
 import gzip
+import cPickle
 import readline
 
 archive = "CATHALL.txt.tar.gz"
@@ -30,6 +31,19 @@ with gzip.open(archive, 'rn') as f:
 
 #se crea el vector con ambas cosas
 #como el que se le alimenta a la DBM
-salida= [vect26, vectclasi]
+train= [vect26, vectclasi]
+#las otras dos salidas se copian de la primera para que tenga el mismo formato que las databeses de logistic_sgd.py
+valid = [vect26, vectclasi]
+test = [vect26, vectclasi]
+#se crea el vector de salida
+salida = [salida, valid, test]
+
+#se comprime con cPickle y luego con gzip para que tenga el mismo formato que usa la DBM
+f = gzip.open('datasetProt.pkl.gz', 'w')
+f.write(cPickle.dumps(salida, 1))
+
+f.close()
+
+
 print len(salida)
 print len(salida[0]) 
