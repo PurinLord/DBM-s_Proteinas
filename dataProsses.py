@@ -4,6 +4,7 @@ import cPickle
 import sys
 import random
 from getAttrfromSeq import *
+import seqVectorizer as sv
 
 #fseqs = open("CathDomainSeqs.ATOM.v3.5.0")
 fseqs = open("CathReducida")
@@ -30,45 +31,15 @@ for s in fseqs:
 			continue 
 		seqs.append(s)
 
-print len(seqs)
+#print len(seqs)
 
-comblength = 7
+vectorizer = sv.seqVectorizer(comblength=7)
 
-F_Ic4list = ['AWM','GST','HPY','CVIFL','DNQ','ER','K']
-Lmap =  F_Ic4list #MSlist #LESKlist #F_Ic4list
-#se hace la transformacion del vector de seguencias de acuerdo a comblength y Lmap
-print "aplicando createAAFreqVector"
-X = map(lambda s : np.array(createAAFreqVector(s,Lmap,comblength)) , seqs)
+vectNormal = vectorizer.fit_transform(seqs)
 
-#vector con  los valores maximos
-maxVector = []
-
-#seguro hay una forma de optimizar eso sacandolo a medida que se calcula
-#dentro de la funcion createAAFreqVector
-print "calculando vector de normalizacion"
-for j in range(len(X[0])):
-	maxVal = 0
-	for i in range(len(X)):
-		if maxVal < X[i][j]:
-			maxVal = X[i][j]
-
-	maxVector.append(maxVal)
-
-normal = np.zeros(([len(X), len(X[0])]))
-
-#se normaliza el vector X usando maxVector
-print "normalizando"
-for j in range(len(X[0])):
-	for i in range(len(X)):
-		if maxVector[j] != 0:
-			normal[i][j] = float(X[i][j])/maxVector[j]
-			#print normal[i][j],
-			#print "\t",
-
-#print maxVector
 
 ######datos finales de entrada
-protSeq = [normal, labels]
+protSeq = [vectNormal, labels]
 
 salSeq = []
 vect26 = []
