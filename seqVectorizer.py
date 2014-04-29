@@ -7,6 +7,17 @@ import string
 class seqVectorizer(object):
 
     def __init__(self,aaGroupingList='F_Ic4list',comblength=5,scaleFactor=1.5,verbose=False):
+        """
+        Arguments initializes variables used by various functions, nevertheles, 
+        each member function can be called statical if needed with another arguments. 
+        
+        Keyword arguments:
+        normalAAslist -- Each element is a string with aminoacids to be considered as equivalent. 
+                            Ordering is not important.
+                            If a string, it is considered as a key for internal aaLmapsDict.
+        comblength    -- The maximum size of combinations to be considered.
+        """
+        
         self.aaLmapsDict = {'normalAAslist' : ['A','R','N','D','C','E','Q','G','H','I','L','K','M','F','P','S','T','W','Y','V'],
                             'F_Ic4list' : ['AWM','GST','HPY','CVIFL','DNQ','ER','K'],
                             'MSlist' : ['AVLIMC','WYHF','TQSN','RK','ED','GP'],
@@ -25,7 +36,7 @@ class seqVectorizer(object):
     
     def dictFromListMapping(self,L):
         """
-        creates a dictionary containing the mapping depicted in list L
+        Creates a dictionary containing the mapping depicted in list L
         """
         D = dict()
         for i in xrange(len(L)):
@@ -93,6 +104,10 @@ class seqVectorizer(object):
         return X
         
     def transform(self,seqs):
+        """
+        Transform raw sequences into attribute vectors
+        fit_transform must be called first
+        """
         X = map(lambda s : np.array(self.createAAFreqVector(s,self.aaGroupingList,self.comblength)) , seqs)
         X = np.asarray(X, dtype=np.float)
         if self.verbose: print X
