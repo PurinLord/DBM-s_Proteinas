@@ -134,15 +134,15 @@ def empacar (data, fileName):
 	
 	f.close()
 
-#prueba = format(train)
+prueba = format(train)
 #print "prueba"
-#print len(prueba)
-#print len(prueba[0])
-#print len(prueba[0][0])
-#print len(prueba[0][1])
-#print len(prueba[0][0][0])
-#print prueba[0][1]
-#print len(prueba[1][0][0])
+print len(prueba)
+print len(prueba[0])
+print len(prueba[0][0])
+print len(prueba[0][1])
+print len(prueba[0][0][0])
+print prueba[0][1]
+print len(prueba[1][0][0])
 
 vecTrain = format(train)
 vecVal = format(valid)
@@ -154,7 +154,11 @@ for i in range(len(vecTrain)):
 	empacar([vecTrain[i], vecVal[i], vecTest[i]], "ProteinData-" + str(i + 1) + ".pkl.gz")
 
 #empacando la lista del pre prosesamiento
-empacar([vectFullTrain, 0, 0], "Pre.pkl.gz")
+#se le agregan vectores 0 en el lugar de valid y test para que DBN.py las pueda usar directamente
+a = []
+for i in range(2):
+	a.append([0,0])
+empacar([vectFullTrain[0],a ,a], "Pre.pkl.gz")
 
 	
 
