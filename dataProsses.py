@@ -6,6 +6,7 @@ import random
 from getAttrfromSeq import *
 import seqVectorizer as sv
 
+#se abre el archivo con las etiquetas y las secuencias de aminoacidos
 #fseqs = open("CathDomainSeqs.ATOM.v3.5.0")
 fseqs = open("CathReducida")
 seqs = []
@@ -40,56 +41,64 @@ vectNormal = vectorizer.fit_transform(seqs)
 
 ######datos finales de entrada
 protSeq = [vectNormal, labels]
+dicSeq = dict(zip(labels, vectNormal))
 
-salSeq = []
-vect26 = []
-vectClasi = []
 
-#Lee el archivo en gz
+dic26 = {}
+#se carga el archivo que tiene los vectores de 26 y las etiquetas de las secuencias
 print "cargando CATHALL.txt.tar.gz"
 with gzip.open("CATHALL.txt.tar.gz", 'rn') as f:
 	#lee cada linea del archivo
 	for line in f:
-		#print line
+
 		#transforma la linea en un vector
 		vector = line.split(',')
 		#elimina el ultimo caracter (\n)
 		vector[-1] = vector[-1][:-1]
-		#print vector
+
+		#crea el vector con las etiquetas
+		sallable = vector[0]
+		#la primera entrada no e sun dato
+		#por seguridad si la etiqueta es mas larga que 7 se descarta la entrada
+		if len(sallable) > 7:
+			continue
+		#print len(sallable) ,
+
 		#crea el vector principal de 26 dimenciones
 		data26 = map(int, vector[1:27])
+
+		#print sallable
 		#print data26
-		#crea el resto con las etiquetas
-		sallable = [vector[0]]
-		#print dominioYclas
-		#se va creando el vector con todos los vectorsitos de 26
-		vect26.append(data26)
-		#lo mismo para las etiquetas
-		vectClasi.append(sallable[0])
+
+		#se cea el diccionario 
+		dic26[sallable] = data26
 
 #####datos de finales de salida
-salSeq = [vect26[:-1], vectClasi[:-1]]
-#se elimina el ultimo elemento porque esta vacio, no se porque
-#print salSeq[0][1]
-#print salSeq[1][1]
 
 #ahora se unen la entrada y la salida
 print "Relacionando la entrada con la salida"
 protA26 = []
+#vector con las entradas que no tengan una imagen 3D correspondeinte
+#para el preprosesamiento
+preProsses = []
 print len(protSeq[1])
 for i in range(len(protSeq[1])):
 	try:
-		#dada la estiqueta de la entrada se busca su correspondiente en la salida
-		index = salSeq[1].index(protSeq[1][i])
-		#se guarda en protA26 la entrada con su salida correspondiente
-		protA26.append([protSeq[0][i], salSeq[0][index]])
+		#usando la etiquta se busca dada elemento de protSeq en el diciionario de 26
+		#si lo encuentra lo une a la salida
+		protA26.append([protSeq[0][i], dic26[protSeq[1][i]]])
 	except ValueError:
+		#si no se encuentra se guarda para el preprossesamiento
+		preProsses.append([protSeq[0][i], 0])
 		print "NOT"
 print len(protA26)
+print len(preProsses)
 #print protA26
 
 random.shuffle(protA26)
+random.shuffle(preProsses)
 #se calcula una septima parte de la longutdud
+#para tomar el vector de entreneamiento el de prieba y el de validacion
 subSet = len(protA26)/7
 valid = protA26[0:subSet]
 test = protA26[subSet:subSet * 2]
@@ -138,10 +147,14 @@ def empacar (data, fileName):
 vecTrain = format(train)
 vecVal = format(valid)
 vecTest = format(test)
+#vector con las cadenas sin correspondencia de 26 para el pre entrenamiento
+vectFullTrain = format(train + preProsses)
 
 for i in range(len(vecTrain)):
 	empacar([vecTrain[i], vecVal[i], vecTest[i]], "ProteinData-" + str(i + 1) + ".pkl.gz")
 
+#empacando la lista del pre prosesamiento
+empacar([vectFullTrain, 0, 0], "Pre.pkl.gz")
 
 	
 
