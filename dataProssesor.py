@@ -132,13 +132,21 @@ class dataProssesor(object):
 		
 		f.close()
 
-	def standardFormatAndPack(self, train, valid, test, preProsses = []):
+	def standardFormatAndPack(self, train, valid, test, preProsses = [], verbos = False):
 		print len(train)
 		vecTrain = self.formating(train)
 		vecVal = self.formating(valid)
 		vecTest = self.formating(test)
 		#vector con las cadenas sin correspondencia de 26 para el pre entrenamiento
 		vectFullTrain = self.formating(train + preProsses)
+		
+		if verbos == True:
+			print len(vecTrain)
+			print len(vecTrain[0])
+			print type(vecTrain[0][0][0])
+			np.set_printoptions(threshold=np.nan)
+			print vecTrain[0][0][0]
+			print vecTrain[0][1][0]
 		
 		for i in range(len(vecTrain)):
 			self.packing([vecTrain[i], vecVal[i], vecTest[i]], "ProteinData-" + str(i + 1) + ".pkl.gz")
@@ -165,7 +173,7 @@ class dataProssesor(object):
 		print len(train)
 		print len(preProsses)
 
-		self.standardFormatAndPack(train, valid, test, preProsses)
+		self.standardFormatAndPack(train, valid, test, preProsses, True)
 def main():
 	print "comienzo"
 	_dataProssesor = dataProssesor()
