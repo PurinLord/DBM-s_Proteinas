@@ -145,7 +145,9 @@ class dataProssesor(object):
 			print len(vecTrain[0])
 			print type(vecTrain[0][0][0])
 			np.set_printoptions(threshold=np.nan)
+			print "len entrada " + str(len(vecTrain[0][0][0]))
 			print vecTrain[0][0][0]
+			print "len salida " + str(len(vecTrain[0][1][0]))
 			print vecTrain[0][1][0]
 		
 		for i in range(len(vecTrain)):
