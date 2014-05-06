@@ -6,17 +6,40 @@ import random
 from getAttrfromSeq import *
 import seqVectorizer as sv
 
+"""	This class can read specific data files and unpak  
+	its content it can process data vectors format and pack them into the the type used by dbm.py
+	it also contains a methos thoes all the data formating in one step
+
+	loadCathDomainSeqs(data)
+	load26VectorRepresentation(data)
+	joinData(dataSet, dictionary):
+	splitData(mainData, preProssesData, ratio):
+	formating (data):
+	packing (data, fileName):
+	standardFormatAndPack(train, valid, test, preProsses, verbos):
+	standardProsses (data1, data2):
+"""
 class dataProssesor(object):
 
 	#def __init__(self):
 		##inicio
-	
+	""" 
+	Reads a file of plain text containing data in the format:
+	>domain|"id lable"|3_5_0
+	"amino acid sequence" (with no separation)
+	Example
+	>domain|1ahqA00|3_5_0
+	GIAVSDDCVQKFNELKLGHQHRYVTFKMNASNTEVVVEHVGGPNATYEDFKSQLPERDCRYAIFDYEFQVDGGQRNKITFILWAPDSAPIKSKMMYTSTKDSIKKKLVGIQVEVQATDAAEISEDAVSERAKK
+	Returns: vector containing sequence, vector containing labels
+
+	:type data: string
+	:param data: name of the file to unpak
+	"""
 	def loadCathDomainSeqs(self, data):
 		
 		print "cargando " + data
 
 		#se abre el archivo con las etiquetas y las secuencias de aminoacidos
-		#fseqs = open("CathDomainSeqs.ATOM.v3.5.0")
 		fseqs = open(data)
 		seqs = []
 		labels = []
@@ -41,7 +64,16 @@ class dataProssesor(object):
 
 		return seqs, labels
 
+	""" 
+	Reads a file of the type .txt.tar.gz containing data in the format:
+	"id lable","26 dimention vector"(separated by colons),#_#_##_#
+	Example
+	1ivsA04,2,0,2,6,6,6,25,4,0,0,2,1,0,6,3,0,0,0,0,0,0,0,0,0,0,5,3_30_1170_10
+	Returns: dictionary with lables and vectors
 
+	:type data: string
+	:param data: name of the file to unpak
+	"""
 	def load26VectorRepresentation(self, data):
 
 		#se carga el archivo que tiene los vectores de 26 y las etiquetas de las secuencias
@@ -75,11 +107,21 @@ class dataProssesor(object):
 
 		return dic26
 
+	"""
+	Matches a data set with amino acid sequence with its corresponding 26 dimensional vector
+	Returns: matrix with matching sequence-26vector, vector all the seq that didn't have a patch
 
+
+	:type dataSet: list 
+	:param dataSet: list of lables and aminoacid seguence
+	:type dictionary: dict
+	:param dictionary: dict of  lables and 26 vector
+	"""
 	def joinData(self, dataSet, dictionary):
 
 		#ahora se unen la entrada y la salida
 		print "Relacionando la entrada con la salida"
+		print type(dictionary)
 		protA26 = []
 		#vector con las entradas que no tengan una imagen 3D correspondeinte
 		#para el preprosesamiento
@@ -99,7 +141,18 @@ class dataProssesor(object):
 		#print protA26
 		return protA26, preProsses
 
+	"""
+	Split the data set in to the training, validation an test set
+	it also creates a data set for the pre-training useing preProssesData
+	Returns: training, validation, test sets, and teh pre-training set
 
+	:type mainData: list 
+	:param mainData: list of aminoacid sequence and 26 vector 
+	:type preProssesData
+        :param preProssesData
+	:type ratio
+	:param ratio
+	"""
 	def splitData(self, mainData, preProssesData = [], ratio = 7):
 
 		random.shuffle(mainData)
@@ -111,7 +164,9 @@ class dataProssesor(object):
 		test = mainData[subSet:subSet * 2]
 		train = mainData[subSet * 2: -1] 
 		return train, valid, test, preProssesData
-
+	"""
+	Puts the data in the correcto format for DBM.py
+	"""
 	def formating (self, data):
 		out = []
 		#print len(data)
@@ -125,13 +180,15 @@ class dataProssesor(object):
 				salida.append(data[i][1][j])
 			out.append([entrada, salida])
 		return out
-	
+	"""
+	Packs the data in the format used by DBM.py using the chones name
+	"""
 	def packing (self, data, fileName):
 		f = gzip.open(fileName, 'w')
 		f.write(cPickle.dumps(data, 1))
 		
 		f.close()
-
+	
 	def standardFormatAndPack(self, train, valid, test, preProsses = [], verbos = False):
 		print len(train)
 		vecTrain = self.formating(train)
@@ -147,7 +204,7 @@ class dataProssesor(object):
 			np.set_printoptions(threshold=np.nan)
 			print "len entrada " + str(len(vecTrain[0][0][0]))
 			print vecTrain[0][0][0]
-			print "len salida " + str(len(vecTrain[0][1][0]))
+
 			print vecTrain[0][1][0]
 		
 		for i in range(len(vecTrain)):
@@ -160,7 +217,11 @@ class dataProssesor(object):
 			a.append([0,0])
 		self.packing([vectFullTrain[0],a ,a], "Pre.pkl.gz")
 
-
+	"""
+	Prosseses de file "data1" and the file "data2" using all the methods and converting the aminoacid
+	sequence with seqVectorizer
+	Returns: 26 data sest to be used un DBM.py and one for the pre-training
+	"""
 	def standardProsses (self, data1, data2):
 		seqs, labels = self.loadCathDomainSeqs(data1)
 		dic26 = self.load26VectorRepresentation(data2)
