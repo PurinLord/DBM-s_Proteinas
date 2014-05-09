@@ -128,11 +128,12 @@ class dataProssesor(object):
 		preProsses = []
 		#print len(dataSet[1])
 		for i in range(len(dataSet[1])):
-			try:
+			D = dictionary.get(dataSet[1][i], -1)
+			if D > 0:
 				#usando la etiquta se busca dada elemento de dataSet en el diciionario de 26
 				#si lo encuentra lo une a la salida
 				protA26.append([dataSet[0][i], dictionary[dataSet[1][i]]])
-			except ValueError:
+			else:
 				#si no se encuentra se guarda para el preprossesamiento
 				preProsses.append([dataSet[0][i], 0])
 				#print "NOT"
@@ -227,7 +228,10 @@ class dataProssesor(object):
 		dic26 = self.load26VectorRepresentation(data2)
 
 		vectorizer = sv.seqVectorizer(comblength=7)
+		print str(len(seqs)) + " transformando vecuencias"
+		#print seqs
 		vectNormal = vectorizer.fit_transform(seqs)
+		print "fin de transf"
 		protSeq = [vectNormal, labels]
 
 		mainData, preProsses = self.joinData(protSeq, dic26)
@@ -241,6 +245,7 @@ def main():
 	print "comienzo"
 	_dataProssesor = dataProssesor()
 	_dataProssesor.standardProsses("CathReducida", "CATHALL.txt.tar.gz")
+	_dataProssesor.standardProsses("CathDomainSeqs.ATOM.v3.5.0", "CATHALL.txt.tar.gz")
 
 if __name__== '__main__':
     main()
