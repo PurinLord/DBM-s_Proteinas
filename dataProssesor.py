@@ -129,6 +129,7 @@ class dataProssesor(object):
 		#print len(dataSet[1])
 		for i in range(len(dataSet[1])):
 			D = dictionary.get(dataSet[1][i], -1)
+
 			if D > 0:
 				#usando la etiquta se busca dada elemento de dataSet en el diciionario de 26
 				#si lo encuentra lo une a la salida
@@ -140,6 +141,7 @@ class dataProssesor(object):
 		#print len(protA26)
 		#print len(preProsses)
 		#print protA26
+		print
 		return protA26, preProsses
 
 	"""
@@ -192,11 +194,13 @@ class dataProssesor(object):
 	
 	def standardFormatAndPack(self, train, valid, test, preProsses = [], verbos = False):
 		print len(train)
+		print len(train[0])
+		print len(train[0][0])
 		vecTrain = self.formating(train)
 		vecVal = self.formating(valid)
 		vecTest = self.formating(test)
 		#vector con las cadenas sin correspondencia de 26 para el pre entrenamiento
-		vectFullTrain = self.formating(train + preProsses)
+		vectFullTrain = self.formating([train[0] + preProsses, train[1] + preProsses])
 		
 		if verbos == True:
 			print len(vecTrain)
@@ -227,8 +231,8 @@ class dataProssesor(object):
 		seqs, labels = self.loadCathDomainSeqs(data1)
 		dic26 = self.load26VectorRepresentation(data2)
 
-		vectorizer = sv.seqVectorizer(comblength=7)
-		print str(len(seqs)) + " transformando vecuencias"
+		vectorizer = sv.seqVectorizer(comblength=1)
+		print str(len(seqs)) + " transformando secuencias"
 		#print seqs
 		vectNormal = vectorizer.fit_transform(seqs)
 		print "fin de transf"
@@ -238,13 +242,14 @@ class dataProssesor(object):
 		
 		train, valid, test, preProsses = self.splitData(mainData, preProsses) 
 		print len(train)
+		print "prep" 
 		print len(preProsses)
 
 		self.standardFormatAndPack(train, valid, test, preProsses, True)
 def main():
 	print "comienzo"
 	_dataProssesor = dataProssesor()
-	_dataProssesor.standardProsses("CathReducida", "CATHALL.txt.tar.gz")
+	#_dataProssesor.standardProsses("CathReducida", "CATHALL.txt.tar.gz")
 	_dataProssesor.standardProsses("CathDomainSeqs.ATOM.v3.5.0", "CATHALL.txt.tar.gz")
 
 if __name__== '__main__':
