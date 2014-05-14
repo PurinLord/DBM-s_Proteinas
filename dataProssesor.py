@@ -191,7 +191,10 @@ class dataProssesor(object):
 		f.write(cPickle.dumps(data, 1))
 		
 		f.close()
-	
+	"""
+	Converts the 3 data sets (train, calid, test) in to 26 data sets in de format udes by DBM.py
+	and one for the pre prosesing
+	"""
 	def standardFormatAndPack(self, train, valid, test, preProsses = [], verbos = False):
 		print len(train)
 		print len(train[0])
@@ -227,15 +230,14 @@ class dataProssesor(object):
 	sequence with seqVectorizer
 	Returns: 26 data sest to be used un DBM.py and one for the pre-training
 	"""
-	def standardProsses (self, data1, data2):
+	def standardProsses (self, data1, data2, comblength):
 		seqs, labels = self.loadCathDomainSeqs(data1)
 		dic26 = self.load26VectorRepresentation(data2)
 
-		vectorizer = sv.seqVectorizer(comblength=1)
+		vectorizer = sv.seqVectorizer(comblength=comblength)
 		print str(len(seqs)) + " transformando secuencias"
 		#print seqs
 		vectNormal = vectorizer.fit_transform(seqs)
-		print "fin de transf"
 		protSeq = [vectNormal, labels]
 
 		mainData, preProsses = self.joinData(protSeq, dic26)
@@ -250,7 +252,7 @@ def main():
 	print "comienzo"
 	_dataProssesor = dataProssesor()
 	#_dataProssesor.standardProsses("CathReducida", "CATHALL.txt.tar.gz")
-	_dataProssesor.standardProsses("CathDomainSeqs.ATOM.v3.5.0", "CATHALL.txt.tar.gz")
+	_dataProssesor.standardProsses("CathDomainSeqs.ATOM.v3.5.0", "CATHALL.txt.tar.gz", 2)
 
 if __name__== '__main__':
     main()
