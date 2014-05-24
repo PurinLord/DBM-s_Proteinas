@@ -122,11 +122,18 @@ class dataProssesor(object):
 		#ahora se unen la entrada y la salida
 		print "Relacionando la entrada con la salida"
 		print type(dictionary)
+
+		print "data"
+		print len(dataSet) , len(dataSet[0])
+		print "dic"
+		print len(dictionary)
+
 		protA26 = []
 		#vector con las entradas que no tengan una imagen 3D correspondeinte
 		#para el preprosesamiento
 		preProsses = []
 		#print len(dataSet[1])
+		cont = 0
 		for i in range(len(dataSet[1])):
 			D = dictionary.get(dataSet[1][i], -1)
 
@@ -136,12 +143,15 @@ class dataProssesor(object):
 				protA26.append([dataSet[0][i], dictionary[dataSet[1][i]]])
 			else:
 				#si no se encuentra se guarda para el preprossesamiento
+				cont += 1 
 				preProsses.append([dataSet[0][i], 0])
 				#print "NOT"
-		#print len(protA26)
-		#print len(preProsses)
-		#print protA26
-		print
+		print cont
+		print "Prot a 26"
+		print len(protA26)
+		print "pre train"
+		print len(preProsses)
+
 		return protA26, preProsses
 
 	"""
@@ -166,6 +176,8 @@ class dataProssesor(object):
 		valid = mainData[0:subSet]
 		test = mainData[subSet:subSet * 2]
 		train = mainData[subSet * 2: -1] 
+		print "train, val, test, prePr"
+		print len(train), len(valid), len(test), len(preProssesData)
 		return train, valid, test, preProssesData
 	"""
 	Puts the data in the correcto format for DBM.py
@@ -183,6 +195,20 @@ class dataProssesor(object):
 				salida.append(data[i][1][j])
 			out.append([entrada, salida])
 		return out
+
+	def formatingOne (self, data):
+		out = []
+		#print len(data)
+		#print len(data[0][1])
+		#print len(data[0][0])
+		#se revisa que data[0][1] no sea un entero, para el caso de preProsses
+		print type(data[0][1][0])
+		entrada = []
+		for i in range(len(data)):
+			entrada.append(data[i][0])
+			salida = data[i][1] #= 0
+		out = [entrada, salida]
+		return out
 	"""
 	Packs the data in the format used by DBM.py using the chones name
 	"""
@@ -196,24 +222,26 @@ class dataProssesor(object):
 	and one for the pre prosesing
 	"""
 	def standardFormatAndPack(self, train, valid, test, preProsses = [], verbos = False):
-		print len(train)
-		print len(train[0])
-		print len(train[0][0])
+
 		vecTrain = self.formating(train)
 		vecVal = self.formating(valid)
 		vecTest = self.formating(test)
 		#vector con las cadenas sin correspondencia de 26 para el pre entrenamiento
-		vectFullTrain = self.formating([train[0] + preProsses, train[1] + preProsses])
-		
+		vectFullTrain = self.formatingOne(train + preProsses)
+
 		if verbos == True:
-			print len(vecTrain)
-			print len(vecTrain[0])
+			print "trian"
+			print len(train), len(train[0]), len(train[0][0]), len(train[0][1])
+			print "peProsses"
+			print len(preProsses), len(preProsses[0]), len(preProsses[0][0])
+
+			print "vTrain"
+			print len(vecTrain), len(vecTrain[0]), len(vecTrain[0][0]), len(vecTrain[0][0][0]) 
+			print "vPre"
+			print len(vectFullTrain), len(vectFullTrain[0]), len(vectFullTrain[0][0])
+		
 			print type(vecTrain[0][0][0])
 			np.set_printoptions(threshold=np.nan)
-			print "len entrada " + str(len(vecTrain[0][0][0]))
-			print vecTrain[0][0][0]
-
-			print vecTrain[0][1][0]
 		
 		for i in range(len(vecTrain)):
 			self.packing([vecTrain[i], vecVal[i], vecTest[i]], "ProteinData-" + str(i + 1) + ".pkl.gz")
@@ -243,9 +271,6 @@ class dataProssesor(object):
 		mainData, preProsses = self.joinData(protSeq, dic26)
 		
 		train, valid, test, preProsses = self.splitData(mainData, preProsses) 
-		print len(train)
-		print "prep" 
-		print len(preProsses)
 
 		self.standardFormatAndPack(train, valid, test, preProsses, True)
 def main():
