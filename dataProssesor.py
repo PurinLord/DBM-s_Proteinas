@@ -146,6 +146,7 @@ class dataProssesor(object):
 				cont += 1 
 				preProsses.append([dataSet[0][i], 0])
 				#print "NOT"
+		print "no match"
 		print cont
 		print "Prot a 26"
 		print len(protA26)
@@ -251,7 +252,7 @@ class dataProssesor(object):
 		a = []
 		for i in range(2):
 			a.append([0,0])
-		self.packing([vectFullTrain[0],a ,a], "Pre.pkl.gz")
+		self.packing([vectFullTrain,a ,a], "Pre.pkl.gz")
 
 	"""
 	Prosseses de file "data1" and the file "data2" using all the methods and converting the aminoacid
